@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  restapi:
+    build: .
+    volumes:
+      - './:/usr/src/app'
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_SETTINGS=project.config.DevelopmentConfig
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/users_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/users_test
+      - SECRET_KEY=my_precious
+      - FLASK_DEBUG=1
+      - TZ=Asia/Tokyo
+    entrypoint:
+      - dockerize
+      - -timeout
+      - 60s
+      - -wait
+      - tcp://db:5432
+    command: python -B -u /usr/src/app/manage.py run -h 0.0.0.0
+    depends_on:
+      - db
+    links:
+      - db
+
+  db:
+    container_name: db
+    build:
+      context: ./project/db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - TZ=Asia/Tokyo
