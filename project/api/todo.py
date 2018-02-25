@@ -1,7 +1,10 @@
 from flask_restplus import Namespace, fields, Resource
+import json
 
 from project import db
 from project.models import ToDo
+
+from project.api.api import api
 
 # Namespaceの初期化と登録
 todo_namespace = Namespace('todo', description='ToDoのエンドポイント')
@@ -48,8 +51,15 @@ class ToDoList(Resource):
         """
         ToDo登録
         """
-        # ちょっとやっかいなので実装はまた今度
-        pass
+        tododata = ToDo(
+            id=api.payload['id'],
+            user_id=api.payload['user_id'],
+            title=api.payload['title'],
+            description=api.payload['description'],
+        )
+        db.session.add(tododata)
+        db.session.commit()
+        return api.payload
 
 
 @todo_namespace.route('/<int:todo_id>')

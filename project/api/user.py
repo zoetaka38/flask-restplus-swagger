@@ -1,5 +1,7 @@
 from flask_restplus import Namespace, fields, Resource
 
+from project.api.api import api
+
 # Namespaceの初期化と登録
 from project.api.todo import todo
 from project import db
@@ -42,8 +44,14 @@ class UserList(Resource):
         """
         ユーザー登録
         """
-        # ちょっとやっかいなので実装はまた今度
-        pass
+        userdata = User(
+            id=api.payload['id'],
+            name=api.payload['name'],
+            email=api.payload['email'],
+        )
+        db.session.add(userdata)
+        db.session.commit()
+        return api.payload
 
 
 @user_namespace.route('/<int:user_id>')
